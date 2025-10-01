@@ -1,8 +1,9 @@
 #pragma once
 
+#include <functional>
 #include <type_traits>
 
-namespace cpp_fold
+namespace cpp_reduce
 {
 
 enum class step_result_type
@@ -145,4 +146,4 @@ constexpr inline auto none_of = detail::logical_sum_fn<std::logical_and<>, true,
 
 constexpr inline auto copy = detail::copy_fn{};
 
-}  // namespace cpp_fold
+}  // namespace cpp_reduce

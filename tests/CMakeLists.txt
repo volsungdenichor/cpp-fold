@@ -1,7 +1,7 @@
-set(TARGET_NAME cpp-fold-ut)
+set(TARGET_NAME cpp-reduce-ut)
 
 set(UNIT_TEST_SOURCE_LIST
-    cpp-fold.test.cpp
+    cpp-reduce.test.cpp
 )
 
 Include(FetchContent)
