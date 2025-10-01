@@ -92,66 +92,27 @@ struct fold_fn
     }
 };
 
-struct all_of_fn
+template <class Op, bool Init, bool Value, bool Stop = !Init>
+struct logical_sum_fn
 {
     template <class Pred>
     struct impl_t
     {
         Pred pred;
 
-        template <class T>
-        auto operator()(bool total, const T& item) const -> step_t<bool>
+        template <class... Args>
+        auto operator()(bool total, Args&&... args) const -> step_t<bool>
         {
-            return break_with_if(total && std::invoke(pred, item), [](bool v) { return !v; });
+            static const auto op = Op{};
+            return break_with_if(
+                op(total, std::invoke(pred, std::forward<Args>(args)...) == Value), [](bool v) { return v == Stop; });
         }
     };
 
     template <class Pred>
     constexpr auto operator()(Pred pred) const -> folder_t<bool, impl_t<Pred>>
     {
-        return { true, impl_t<Pred>{ std::move(pred) } };
-    }
-};
-
-struct any_of_fn
-{
-    template <class Pred>
-    struct impl_t
-    {
-        Pred pred;
-
-        template <class T>
-        auto operator()(bool total, const T& item) const -> step_t<bool>
-        {
-            return break_with_if(total || std::invoke(pred, item), [](bool v) { return v; });
-        }
-    };
-
-    template <class Pred>
-    constexpr auto operator()(Pred pred) const -> folder_t<bool, impl_t<Pred>>
-    {
-        return { false, impl_t<Pred>{ std::move(pred) } };
-    }
-};
-
-struct none_of_fn
-{
-    template <class Pred>
-    struct impl_t
-    {
-        Pred pred;
-
-        template <class T>
-        auto operator()(bool total, const T& item) const -> step_t<bool>
-        {
-            return break_with_if(total && !std::invoke(pred, item), [](bool v) { return !v; });
-        }
-    };
-
-    template <class Pred>
-    constexpr auto operator()(Pred pred) const -> folder_t<bool, impl_t<Pred>>
-    {
-        return { true, impl_t<Pred>{ std::move(pred) } };
+        return { Init, impl_t<Pred>{ std::move(pred) } };
     }
 };
 
@@ -178,9 +139,9 @@ struct copy_fn
 
 constexpr inline auto fold = detail::fold_fn{};
 
-constexpr inline auto all_of = detail::all_of_fn{};
-constexpr inline auto any_of = detail::any_of_fn{};
-constexpr inline auto none_of = detail::none_of_fn{};
+constexpr inline auto all_of = detail::logical_sum_fn<std::logical_and<>, true, true>{};
+constexpr inline auto any_of = detail::logical_sum_fn<std::logical_or<>, false, true>{};
+constexpr inline auto none_of = detail::logical_sum_fn<std::logical_and<>, true, false>{};
 
 constexpr inline auto copy = detail::copy_fn{};
 

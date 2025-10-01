@@ -42,6 +42,24 @@ TEST_CASE("cpp-fold - all_of - built-in implementation", "")
     REQUIRE(folder(std::vector<int>{ 12, 1401, 13, 14, 19 }) == false);
 }
 
+TEST_CASE("cpp-fold - any_of - built-in implementation", "")
+{
+    const auto folder = cpp_fold::any_of([](int value) { return 10 <= value && value <= 20; });
+
+    REQUIRE(folder(std::vector<int>{ 12, 13, 14, 19 }) == true);
+    REQUIRE(folder(std::vector<int>{}) == false);
+    REQUIRE(folder(std::vector<int>{ 12, 1401, 13, 14, 19 }) == true);
+}
+
+TEST_CASE("cpp-fold - none_of - built-in implementation", "")
+{
+    const auto folder = cpp_fold::none_of([](int value) { return 10 <= value && value <= 20; });
+
+    REQUIRE(folder(std::vector<int>{ 12, 13, 14, 19 }) == false);
+    REQUIRE(folder(std::vector<int>{}) == true);
+    REQUIRE(folder(std::vector<int>{ 12, 1401, 13, 14, 19 }) == false);
+}
+
 TEST_CASE("cpp-fold - copy", "")
 {
     std::vector<int> res = {};
